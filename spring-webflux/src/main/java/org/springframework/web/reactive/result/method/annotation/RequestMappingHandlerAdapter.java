@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -171,8 +171,9 @@ public class RequestMappingHandlerAdapter
 			this.reactiveAdapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
 		}
 
-		this.methodResolver = new ControllerMethodResolver(this.argumentResolverConfigurer,
-				this.reactiveAdapterRegistry, this.applicationContext, this.messageReaders);
+		this.methodResolver = new ControllerMethodResolver(
+				this.argumentResolverConfigurer, this.reactiveAdapterRegistry, this.applicationContext,
+				this.messageReaders, this.webBindingInitializer);
 
 		this.modelInitializer = new ModelInitializer(this.methodResolver, this.reactiveAdapterRegistry);
 	}
@@ -189,7 +190,8 @@ public class RequestMappingHandlerAdapter
 		Assert.state(this.methodResolver != null && this.modelInitializer != null, "Not initialized");
 
 		InitBinderBindingContext bindingContext = new InitBinderBindingContext(
-				getWebBindingInitializer(), this.methodResolver.getInitBinderMethods(handlerMethod));
+				this.webBindingInitializer, this.methodResolver.getInitBinderMethods(handlerMethod),
+				this.methodResolver.hasMethodValidator() && handlerMethod.shouldValidateArguments());
 
 		InvocableHandlerMethod invocableMethod = this.methodResolver.getRequestMappingMethod(handlerMethod);
 

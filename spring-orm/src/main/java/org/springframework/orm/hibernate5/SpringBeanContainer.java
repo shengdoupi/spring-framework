@@ -143,8 +143,8 @@ public final class SpringBeanContainer implements BeanContainer {
 
 		try {
 			if (lifecycleOptions.useJpaCompliantCreation()) {
-				return new SpringContainedBean<>(  // to be replaced with plain createBean(Class)
-						this.beanFactory.createBean(beanType, AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR, false),
+				return new SpringContainedBean<>(
+						this.beanFactory.createBean(beanType),
 						this.beanFactory::destroyBean);
 			}
 			else {
@@ -188,8 +188,8 @@ public final class SpringBeanContainer implements BeanContainer {
 					return new SpringContainedBean<>(bean, beanInstance -> this.beanFactory.destroyBean(name, beanInstance));
 				}
 				else {
-					return new SpringContainedBean<>(  // to be replaced with plain createBean(Class)
-							this.beanFactory.createBean(beanType, AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR, false),
+					return new SpringContainedBean<>(
+							this.beanFactory.createBean(beanType),
 							this.beanFactory::destroyBean);
 				}
 			}

@@ -103,10 +103,14 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
 	 * Create a new ConcurrentTaskScheduler,
 	 * using a single thread executor as default.
 	 * @see java.util.concurrent.Executors#newSingleThreadScheduledExecutor()
+	 * @deprecated in favor of {@link #ConcurrentTaskScheduler(ScheduledExecutorService)}
+	 * with an externally provided Executor
 	 */
+	@Deprecated(since = "6.1")
 	public ConcurrentTaskScheduler() {
 		super();
-		initScheduledExecutor(null);
+		this.scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+		this.enterpriseConcurrentScheduler = false;
 	}
 
 	/**
@@ -119,9 +123,11 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
 	 * to delegate to for {@link org.springframework.scheduling.SchedulingTaskExecutor}
 	 * as well as {@link TaskScheduler} invocations
 	 */
-	public ConcurrentTaskScheduler(ScheduledExecutorService scheduledExecutor) {
+	public ConcurrentTaskScheduler(@Nullable ScheduledExecutorService scheduledExecutor) {
 		super(scheduledExecutor);
-		initScheduledExecutor(scheduledExecutor);
+		if (scheduledExecutor != null) {
+			initScheduledExecutor(scheduledExecutor);
+		}
 	}
 
 	/**
@@ -141,16 +147,10 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
 	}
 
 
-	private void initScheduledExecutor(@Nullable ScheduledExecutorService scheduledExecutor) {
-		if (scheduledExecutor != null) {
-			this.scheduledExecutor = scheduledExecutor;
-			this.enterpriseConcurrentScheduler = (managedScheduledExecutorServiceClass != null &&
-					managedScheduledExecutorServiceClass.isInstance(scheduledExecutor));
-		}
-		else {
-			this.scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-			this.enterpriseConcurrentScheduler = false;
-		}
+	private void initScheduledExecutor(ScheduledExecutorService scheduledExecutor) {
+		this.scheduledExecutor = scheduledExecutor;
+		this.enterpriseConcurrentScheduler = (managedScheduledExecutorServiceClass != null &&
+				managedScheduledExecutorServiceClass.isInstance(scheduledExecutor));
 	}
 
 	/**
@@ -164,7 +164,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
 	 * as well, pass the same executor reference to {@link #setConcurrentExecutor}.
 	 * @see #setConcurrentExecutor
 	 */
-	public void setScheduledExecutor(@Nullable ScheduledExecutorService scheduledExecutor) {
+	public void setScheduledExecutor(ScheduledExecutorService scheduledExecutor) {
 		initScheduledExecutor(scheduledExecutor);
 	}
 

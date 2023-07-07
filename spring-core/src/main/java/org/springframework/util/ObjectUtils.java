@@ -16,26 +16,15 @@
 
 package org.springframework.util;
 
-import java.io.File;
 import java.lang.reflect.Array;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
 import java.time.ZoneId;
-import java.time.temporal.Temporal;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Currency;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.TimeZone;
-import java.util.UUID;
-import java.util.regex.Pattern;
 
 import org.springframework.lang.Nullable;
 
@@ -926,14 +915,18 @@ public abstract class ObjectUtils {
 	 * </ul>
 	 * <p>In the context of this method, a <em>simple value type</em> is any of the following:
 	 * primitive wrapper (excluding {@link Void}), {@link Enum}, {@link Number},
-	 * {@link Date}, {@link Temporal}, {@link File}, {@link Path}, {@link URI},
-	 * {@link URL}, {@link InetAddress}, {@link Currency}, {@link Locale},
-	 * {@link UUID}, {@link Pattern}.
+	 * {@link java.util.Date Date}, {@link java.time.temporal.Temporal Temporal},
+	 * {@link java.io.File File}, {@link java.nio.file.Path Path},
+	 * {@link java.net.URI URI}, {@link java.net.URL URL},
+	 * {@link java.net.InetAddress InetAddress}, {@link java.util.Currency Currency},
+	 * {@link java.util.Locale Locale}, {@link java.util.UUID UUID},
+	 * {@link java.util.regex.Pattern Pattern}.
 	 * @param obj the object to build a string representation for
 	 * @return a concise string representation of the supplied object
 	 * @since 5.3.27
 	 * @see #nullSafeToString(Object)
 	 * @see StringUtils#truncate(CharSequence)
+	 * @see ClassUtils#isSimpleValueType(Class)
 	 */
 	public static String nullSafeConciseToString(@Nullable Object obj) {
 		if (obj == null) {
@@ -959,43 +952,13 @@ public abstract class ObjectUtils {
 			return StringUtils.truncate(charSequence);
 		}
 		Class<?> type = obj.getClass();
-		if (isSimpleValueType(type)) {
+		if (ClassUtils.isSimpleValueType(type)) {
 			String str = obj.toString();
 			if (str != null) {
 				return StringUtils.truncate(str);
 			}
 		}
 		return type.getTypeName() + "@" + getIdentityHexString(obj);
-	}
-
-	/**
-	 * Derived from {@link org.springframework.beans.BeanUtils#isSimpleValueType}.
-	 * <p>As of 5.3.28, considering {@link UUID} in addition to the bean-level check.
-	 * <p>As of 5.3.29, additionally considering {@link File}, {@link Path},
-	 * {@link InetAddress}, {@link Charset}, {@link Currency}, {@link TimeZone},
-	 * {@link ZoneId}, {@link Pattern}.
-	 */
-	private static boolean isSimpleValueType(Class<?> type) {
-		return (Void.class != type && void.class != type &&
-				(ClassUtils.isPrimitiveOrWrapper(type) ||
-				Enum.class.isAssignableFrom(type) ||
-				CharSequence.class.isAssignableFrom(type) ||
-				Number.class.isAssignableFrom(type) ||
-				Date.class.isAssignableFrom(type) ||
-				Temporal.class.isAssignableFrom(type) ||
-				ZoneId.class.isAssignableFrom(type) ||
-				TimeZone.class.isAssignableFrom(type) ||
-				File.class.isAssignableFrom(type) ||
-				Path.class.isAssignableFrom(type) ||
-				Charset.class.isAssignableFrom(type) ||
-				Currency.class.isAssignableFrom(type) ||
-				InetAddress.class.isAssignableFrom(type) ||
-				URI.class == type ||
-				URL.class == type ||
-				UUID.class == type ||
-				Locale.class == type ||
-				Pattern.class == type ||
-				Class.class == type));
 	}
 
 }

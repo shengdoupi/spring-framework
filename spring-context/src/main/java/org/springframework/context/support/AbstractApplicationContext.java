@@ -628,9 +628,6 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			}
 
 			finally {
-				// Reset common introspection caches in Spring's core, since we
-				// might not ever need metadata for singleton beans anymore...
-				resetCommonCaches();
 				contextRefresh.end();
 			}
 		}
@@ -947,6 +944,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * {@link org.springframework.context.event.ContextRefreshedEvent}.
 	 */
 	protected void finishRefresh() {
+		// Reset common introspection caches in Spring's core infrastructure.
+		resetCommonCaches();
+
 		// Clear context-level resource caches (such as ASM metadata from scanning).
 		clearResourceCaches();
 
@@ -967,6 +967,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void cancelRefresh(BeansException ex) {
 		this.active.set(false);
+
+		// Reset common introspection caches in Spring's core infrastructure.
+		resetCommonCaches();
 	}
 
 	/**
